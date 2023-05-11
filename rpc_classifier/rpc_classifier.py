@@ -15,13 +15,16 @@ def main():
     config.read('config.ini')
 
     # cv2 webcam stream
-    capture = cv2.VideoCapture(config['open_cv2']['video_source'])
+    capture = cv2.VideoCapture(config['open_cv2'].getint('video_source'))
     with mp_hands.Hands(
-            max_num_hands=config['mp_hands'].getint('max_num_hands'),
-            model_complexity=config['mp_hands'].getint('model_complexity'),
-            min_detection_confidence=config['mp_hands'].getfloat(
-                'min_detection_confidence'),
-            min_tracking_confidence=config['mp_hands'].getfloat('min_tracking_confidence')) as hands:
+            max_num_hands=config[
+                'mp_hands'].getint('max_num_hands'),
+            model_complexity=config[
+                'mp_hands'].getint('model_complexity'),
+            min_detection_confidence=config[
+                'mp_hands'].getfloat('min_detection_confidence'),
+            min_tracking_confidence=config[
+                'mp_hands'].getfloat('min_tracking_confidence')) as hands:
 
         while capture.isOpened():
             # read continuous webcam input
