@@ -63,30 +63,5 @@ def main():
     capture.release()
 
 
-def getLandmarkCoordinates(image, results, VISIBILITY_THRESHOLD=0.5, PRESENCE_THRESHOLD=0.5):
-    # get usable coordinates for all visible landmarks
-    coordinates = {}
-    image_height, image_width, _ = image.shape
-
-    try:
-        for landmark_id, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
-            # check if landmark is visible
-            if ((landmark.HasField('visibility') and
-                    landmark.visibility < VISIBILITY_THRESHOLD) or
-                    (landmark.HasField('presence') and
-                     landmark.presence < PRESENCE_THRESHOLD)):
-                continue
-
-            # normalize coordinates
-            landmark_pixel_coords = mp_drawing._normalized_to_pixel_coordinates(
-                landmark.x, landmark.y, image_width, image_height)
-            if landmark_pixel_coords:
-                coordinates[landmark_id] = landmark_pixel_coords
-    except:
-        pass
-
-    return coordinates
-
-
 if __name__ == '__main__':
     main()
