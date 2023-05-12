@@ -1,3 +1,4 @@
+from func import *
 import math
 import cv2
 import configparser
@@ -15,6 +16,8 @@ def main():
     config.read('config.ini')
 
     # cv2 webcam stream
+    cv2.namedWindow("main", cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow('main', 900, 900)
     capture = cv2.VideoCapture(config['open_cv2'].getint('video_source'))
     with mp_hands.Hands(
             max_num_hands=config[
@@ -33,7 +36,7 @@ def main():
                 print("ERROR: Ignoring empty camera frame.")
                 continue
 
-            # process image in different colors
+            # process image
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = hands.process(image)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -43,17 +46,10 @@ def main():
             image_height, image_width, _ = image.shape
 
             # draw hand annotations
-            if results.multi_hand_landmarks:
-                for hand_landmarks in results.multi_hand_landmarks:
-                    mp_drawing.draw_landmarks(
-                        image,
-                        hand_landmarks,
-                        mp_hands.HAND_CONNECTIONS,
-                        mp_drawing_styles.get_default_hand_landmarks_style(),
-                        mp_drawing_styles.get_default_hand_connections_style())
+            drawHandAnnotations(image, results)
 
             # flip the image horizontally for a selfie-view display
-            cv2.imshow('Hand Tracking', cv2.flip(image, 1))
+            cv2.imshow('main', cv2.flip(image, 1))
 
             # exit window when pressing escape
             key = cv2.waitKey(1) & 0xFF
@@ -61,6 +57,7 @@ def main():
                 break
 
     capture.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':

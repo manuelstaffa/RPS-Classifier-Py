@@ -31,3 +31,14 @@ def getLandmarkCoordinates(image, results, VISIBILITY_THRESHOLD=0.5, PRESENCE_TH
         pass
 
     return coordinates
+
+
+def drawHandAnnotations(image, results):
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(
+                image,
+                hand_landmarks,
+                mp_hands.HAND_CONNECTIONS,
+                mp_drawing_styles.get_default_hand_landmarks_style(),
+                mp_drawing_styles.get_default_hand_connections_style())
