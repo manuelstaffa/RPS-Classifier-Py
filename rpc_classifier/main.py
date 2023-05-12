@@ -45,8 +45,6 @@ def main():
             # height=y (pixel rows), width=x (pixel columns), channels=color
             image_height, image_width, _ = image.shape
 
-            # get hand landmark coordinates
-
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):
                 drawHandAnnotations(image, results)
