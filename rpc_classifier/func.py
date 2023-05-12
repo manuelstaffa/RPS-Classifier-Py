@@ -9,35 +9,14 @@ mp_hands = mp.solutions.hands
 
 
 config = configparser.ConfigParser()
-config.sections()
 config.read('config.ini')
 
 
-def getLandmarkCoordinates(image, results):
-    # get usable coordinates for all visible landmarks
-    coordinates = {}
+def toPixelCoordinates(image, point):
     image_height, image_width, _ = image.shape
-
-    try:
-        for landmark_id, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
-            # check if landmark is visible
-            if ((landmark.HasField('visibility') and
-                landmark.visibility < config[
-                    'mp.landmarks'].getfloat('visibility_threshold')) or
-                (landmark.HasField('presence') and
-                 landmark.presence < config[
-                    'mp.landmarks'].getfloat('presence_threshold'))):
-                continue
-
-            # normalize coordinates
-            landmark_pixel_coords = mp_drawing._normalized_to_pixel_coordinates(
-                landmark.x, landmark.y, image_width, image_height)
-            if landmark_pixel_coords:
-                coordinates[landmark_id] = landmark_pixel_coords
-    except:
-        pass
-
-    return coordinates
+    x, y = point
+    norm_x, norm_y = round(x * image_width), round(y * image_height)
+    return norm_x, norm_y
 
 
 def drawHandAnnotations(image, results):
@@ -52,4 +31,19 @@ def drawHandAnnotations(image, results):
 
 
 def drawHandBounds(image, results):
-    return
+    if results.multi_hand_landmarks:
+        for hand, hand_landmarks in enumerate(results.multi_hand_landmarks):
+            x, y = [], []
+            if hand_landmarks:
+                for i in range(21):
+                    landmark = hand_landmarks.landmark[i]
+                    x.append(landmark.x if landmark.x > 0 else 0)
+                    y.append(landmark.y if landmark.y > 0 else 0)
+            p_min = toPixelCoordinates(image, (min(x), min(y)))
+            p_max = toPixelCoordinates(image, (max(x), max(y)))
+            cv2.rectangle(image, p_min, p_max, (0, 255, 0), 2)
+            # cv2.line(image, p_min, (0, 0), (0, 255, 0), 2)
+            # cv2.line(image, p_max, (0, 0), (0, 255, 0), 2)
+            cv2.putText(img=image, text="Hand "+str(hand), org=(p_max[0], p_min[1]),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=-1,
+                        color=(0, 255, 0), thickness=2, bottomLeftOrigin=True)

@@ -12,22 +12,22 @@ mp_hands = mp.solutions.hands
 def main():
     # load config file
     config = configparser.ConfigParser()
-    config.sections()
     config.read('config.ini')
 
     # cv2 webcam stream
     cv2.namedWindow("main", cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow('main', 900, 900)
-    capture = cv2.VideoCapture(config['opencv2'].getint('video_source'))
+    # default 640x480
+    cv2.resizeWindow('main', 900, 650)
+    capture = cv2.VideoCapture(0)
     with mp_hands.Hands(
             max_num_hands=config[
-                'mp.hands'].getint('max_num_hands'),
+                'mphands'].getint('max_num_hands'),
             model_complexity=config[
-                'mp.hands'].getint('model_complexity'),
+                'mphands'].getint('model_complexity'),
             min_detection_confidence=config[
-                'mp.hands'].getfloat('min_detection_confidence'),
+                'mphands'].getfloat('min_detection_confidence'),
             min_tracking_confidence=config[
-                'mp.hands'].getfloat('min_tracking_confidence')) as hands:
+                'mphands'].getfloat('min_tracking_confidence')) as hands:
 
         while capture.isOpened():
             # read continuous webcam input
@@ -44,6 +44,8 @@ def main():
             # cv2 image properties
             # height=y (pixel rows), width=x (pixel columns), channels=color
             image_height, image_width, _ = image.shape
+
+            # get hand landmark coordinates
 
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):
