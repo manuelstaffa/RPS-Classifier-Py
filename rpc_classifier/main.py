@@ -52,6 +52,8 @@ def main():
                 drawHandAnnotations(image, results)
             if config['debug'].getboolean('draw_hand_bounds'):
                 drawHandBounds(image, results)
+            if config['debug'].getboolean('draw_normalized_hand'):
+                drawNormalizedHand(image, results)
 
             # flip the image horizontally for a selfie-view display
             cv2.imshow('main', cv2.flip(image, 1))

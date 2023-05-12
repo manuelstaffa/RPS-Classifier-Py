@@ -55,9 +55,19 @@ def drawHandBounds(image, results):
             cv2.rectangle(image, p_min, p_max, (0, 255, 0), 2)
             # cv2.line(image, p_min, (0, 0), (0, 255, 0), 2)
             # cv2.line(image, p_max, (0, 0), (0, 255, 0), 2)
-            cv2.putText(img=image, text="Hand "+str(hand), org=(p_max[0], p_min[1]),
-                        fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1,
+            cv2.putText(img=image, text="Hand "+str(hand), org=(p_max[0], p_min[1]-1),
+                        fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
                         color=(0, 255, 0), thickness=2, bottomLeftOrigin=True)
+
+
+def drawNormalizedHand(image, results):
+    hands = getNormalizedHandLandmarks(image, results)
+    for i, hand in enumerate(hands):
+        for point in hand:
+            x, y = point
+            x, y = round(x*100), round(y*100)
+            center = (x, y+i*100)
+            cv2.circle(image, center, 2, (255, 255, 255), -1)
 
 
 def getHandLandmarks(image, results):
@@ -78,6 +88,11 @@ def getHandLandmarks(image, results):
     return hands
 
 
+def getNormalizedHandLandmarks(image, results):
+    # shortcut to get normalized hand landmarks
+    return normalizeHandsLandmarks(getHandLandmarks(image, results))
+
+
 def normalizeHandsLandmarks(hands):
     # normalizes the coordinates for an array of all visible hands, so that
     # each hand is represented in the same size (0 to 1) regardless of on-screen size
@@ -92,4 +107,9 @@ def normalizeHandLandmarks(hand):
     # normalizes the coordinates for a single hand array of points to 0 to 1
     min_h = np.min(hand, axis=0)
     max_h = np.max(hand, axis=0)
-    norm_hand = (hand - min_h) / (max_h - min_h)
+    norm_h = (hand - min_h) / (max_h - min_h)
+    norm_hand = []
+    for coordinates in norm_h:
+        point = coordinates[0], coordinates[1]
+        norm_hand.append(point)
+    return norm_hand
