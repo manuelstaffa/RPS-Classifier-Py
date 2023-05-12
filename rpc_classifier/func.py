@@ -98,13 +98,34 @@ def normalizeHandsLandmarks(hands):
     # each hand is represented in the same size (0 to 1) regardless of on-screen size
     norm_hands = []
     for hand in hands:
-        norm_hand = normalizeHandLandmarks(hand)
+        norm_hand = normalizeHandLandmarksAspect(hand)
         norm_hands.append(norm_hand)
     return norm_hands
 
 
+def normalizeHandLandmarksAspect(hand):
+    # normalizes the coordinates for a single hand array of points to between 0 to 1
+    # Define an example array of points
+    arr = np.array(hand)
+
+    # Compute the range of the data along both axes
+    x_range = np.max(arr[:, 0]) - np.min(arr[:, 0])
+    y_range = np.max(arr[:, 1]) - np.min(arr[:, 1])
+    max_range = max(x_range, y_range)
+
+    # Normalize the array of points while preserving aspect ratio
+    min_val = np.min(arr, axis=0)
+    norm_h = (arr - min_val) / max_range
+
+    norm_hand = []
+    for coordinates in norm_h:
+        point = coordinates[0], coordinates[1]
+        norm_hand.append(point)
+    return norm_hand
+
+
 def normalizeHandLandmarks(hand):
-    # normalizes the coordinates for a single hand array of points to 0 to 1
+    # normalizes the coordinates for a single hand array of points to between 0 to 1
     min_h = np.min(hand, axis=0)
     max_h = np.max(hand, axis=0)
     norm_h = (hand - min_h) / (max_h - min_h)
