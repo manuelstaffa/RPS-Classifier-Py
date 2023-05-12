@@ -18,16 +18,16 @@ def main():
     # cv2 webcam stream
     cv2.namedWindow("main", cv2.WINDOW_NORMAL)
     # cv2.resizeWindow('main', 900, 900)
-    capture = cv2.VideoCapture(config['open_cv2'].getint('video_source'))
+    capture = cv2.VideoCapture(config['opencv2'].getint('video_source'))
     with mp_hands.Hands(
             max_num_hands=config[
-                'mp_hands'].getint('max_num_hands'),
+                'mp.hands'].getint('max_num_hands'),
             model_complexity=config[
-                'mp_hands'].getint('model_complexity'),
+                'mp.hands'].getint('model_complexity'),
             min_detection_confidence=config[
-                'mp_hands'].getfloat('min_detection_confidence'),
+                'mp.hands'].getfloat('min_detection_confidence'),
             min_tracking_confidence=config[
-                'mp_hands'].getfloat('min_tracking_confidence')) as hands:
+                'mp.hands'].getfloat('min_tracking_confidence')) as hands:
 
         while capture.isOpened():
             # read continuous webcam input
@@ -46,7 +46,10 @@ def main():
             image_height, image_width, _ = image.shape
 
             # draw hand annotations
-            drawHandAnnotations(image, results)
+            if config['debug'].getboolean('draw_hand_annotations'):
+                drawHandAnnotations(image, results)
+            if config['debug'].getboolean('draw_hand_bounds'):
+                drawHandBounds(image, results)
 
             # flip the image horizontally for a selfie-view display
             cv2.imshow('main', cv2.flip(image, 1))

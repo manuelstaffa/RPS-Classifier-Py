@@ -8,7 +8,12 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 
-def getLandmarkCoordinates(image, results, VISIBILITY_THRESHOLD=0.5, PRESENCE_THRESHOLD=0.5):
+config = configparser.ConfigParser()
+config.sections()
+config.read('config.ini')
+
+
+def getLandmarkCoordinates(image, results):
     # get usable coordinates for all visible landmarks
     coordinates = {}
     image_height, image_width, _ = image.shape
@@ -17,9 +22,11 @@ def getLandmarkCoordinates(image, results, VISIBILITY_THRESHOLD=0.5, PRESENCE_TH
         for landmark_id, landmark in enumerate(results.multi_hand_landmarks[0].landmark):
             # check if landmark is visible
             if ((landmark.HasField('visibility') and
-                    landmark.visibility < VISIBILITY_THRESHOLD) or
-                    (landmark.HasField('presence') and
-                     landmark.presence < PRESENCE_THRESHOLD)):
+                landmark.visibility < config[
+                    'mp.landmarks'].getfloat('visibility_threshold')) or
+                (landmark.HasField('presence') and
+                 landmark.presence < config[
+                    'mp.landmarks'].getfloat('presence_threshold'))):
                 continue
 
             # normalize coordinates
@@ -42,3 +49,7 @@ def drawHandAnnotations(image, results):
                 mp_hands.HAND_CONNECTIONS,
                 mp_drawing_styles.get_default_hand_landmarks_style(),
                 mp_drawing_styles.get_default_hand_connections_style())
+
+
+def drawHandBounds(image, results):
+    return
