@@ -34,7 +34,7 @@ def main():
             success, image = capture.read()
             if not success:
                 print("ERROR: Ignoring empty camera frame.")
-                continue
+                break
 
             # process image
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
