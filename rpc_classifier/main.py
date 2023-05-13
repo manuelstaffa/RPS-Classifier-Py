@@ -1,4 +1,7 @@
 from func import *
+from rpc_classifier import *
+from data import *
+
 import math
 import cv2
 import configparser
@@ -33,7 +36,7 @@ def main():
             # read continuous webcam input
             success, image = capture.read()
             if not success:
-                print("ERROR: Ignoring empty camera frame.")
+                print("ERROR: Empty camera frame")
                 break
 
             # process image
@@ -43,7 +46,7 @@ def main():
 
             # cv2 image properties
             # height=y (pixel rows), width=x (pixel columns), channels=color
-            image_height, image_width, _ = image.shape
+            # image_height, image_width, _ = image.shape
 
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):

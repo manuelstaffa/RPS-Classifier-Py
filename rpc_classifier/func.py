@@ -61,7 +61,7 @@ def drawHandBounds(image, results):
 
 
 def drawNormalizedHand(image, results):
-    hands = getNormalizedHandLandmarks(image, results)
+    hands = getNormalizedHandLandmarks(results)
     for i, hand in enumerate(hands):
         for point in hand:
             x, y = point
@@ -70,7 +70,12 @@ def drawNormalizedHand(image, results):
             cv2.circle(image, center, 2, (255, 255, 255), -1)
 
 
-def getHandLandmarks(image, results):
+def getNormalizedHandLandmarks(results):
+    # shortcut to get an array of normalized hand landmarks
+    return normalizeHandsLandmarks(getHandLandmarks(results))
+
+
+def getHandLandmarks(results):
     # return an array of all visible hands, each of which contains an array
     # of points representing the coordinates of all visible landmarks
     hands = []
@@ -86,11 +91,6 @@ def getHandLandmarks(image, results):
                     landmarks.append(landmark_coords)
             hands.append(landmarks)
     return hands
-
-
-def getNormalizedHandLandmarks(image, results):
-    # shortcut to get normalized hand landmarks
-    return normalizeHandsLandmarks(getHandLandmarks(image, results))
 
 
 def normalizeHandsLandmarks(hands):
