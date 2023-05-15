@@ -1,5 +1,6 @@
 from func import *
 
+import time
 import json
 import os
 import cv2
@@ -92,8 +93,11 @@ def dataToNormalizedCoordinates(data_path):
             for file in tqdm(files):
                 file_path = os.path.join(folder_path, file)
                 image = cv2.imread(file_path)
+
                 results = hands.process(image)
                 landmarks = getNormalizedHandLandmarks(results)
+                print(landmarks)
+                print("--------------------")
                 gesture.append(landmarks)
 
             data.append(gesture)

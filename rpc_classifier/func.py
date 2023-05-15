@@ -12,6 +12,7 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 
+# ----------------------------------math----------------------------------
 def toPixelCoordinates(image, point):
     # convert percentage based coordinates to absolute pixel coordinates
     image_height, image_width, _ = image.shape
@@ -28,7 +29,8 @@ def toPercentageCoordinates(image, point):
     return per_x, per_y
 
 
-def drawHandAnnotations(image, results):
+# ----------------------------------draw----------------------------------
+def drawHandsAnnotations(image, results):
     # draw annotations for all visible hands
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
@@ -40,7 +42,7 @@ def drawHandAnnotations(image, results):
                 mp_drawing_styles.get_default_hand_connections_style())
 
 
-def drawHandBounds(image, results):
+def drawHandsBounds(image, results):
     # draw bounding boxes for all visible hands
     if results.multi_hand_landmarks:
         for hand, hand_landmarks in enumerate(results.multi_hand_landmarks):
@@ -60,8 +62,8 @@ def drawHandBounds(image, results):
                         color=(0, 255, 0), thickness=2, bottomLeftOrigin=True)
 
 
-def drawNormalizedHand(image, results):
-    hands = getNormalizedHandLandmarks(results)
+def drawNormalizedHands(image, results):
+    hands = getNormalizedHandsLandmarks(results)
     for i, hand in enumerate(hands):
         for point in hand:
             x, y = point
@@ -70,12 +72,19 @@ def drawNormalizedHand(image, results):
             cv2.circle(image, center, 2, (255, 255, 255), -1)
 
 
+# ----------------------------------shortcuts----------------------------------
+def getNormalizedHandsLandmarks(results):
+    # shortcut to get an array of arrays of normalized hand landmarks
+    return normalizeHandsLandmarks(getHandsLandmarks(results))
+
+
 def getNormalizedHandLandmarks(results):
     # shortcut to get an array of normalized hand landmarks
-    return normalizeHandsLandmarks(getHandLandmarks(results))
+    return normalizeHandLandmarks(getHandLandmarks(results))
 
 
-def getHandLandmarks(results):
+# ----------------------------------coords----------------------------------
+def getHandsLandmarks(results):
     # return an array of all visible hands, each of which contains an array
     # of points representing the coordinates of all visible landmarks
     hands = []
@@ -103,20 +112,11 @@ def normalizeHandsLandmarks(hands):
     return norm_hands
 
 
-def normalizeHandLandmarksAspect(hand):
+def normalizeHandLandmarks(hand):
     # normalizes the coordinates for a single hand array of points to between 0 to 1
-    # Define an example array of points
-    arr = np.array(hand)
-
-    # Compute the range of the data along both axes
-    x_range = np.max(arr[:, 0]) - np.min(arr[:, 0])
-    y_range = np.max(arr[:, 1]) - np.min(arr[:, 1])
-    max_range = max(x_range, y_range)
-
-    # Normalize the array of points while preserving aspect ratio
-    min_val = np.min(arr, axis=0)
-    norm_h = (arr - min_val) / max_range
-
+    min_h = np.min(hand, axis=0)
+    max_h = np.max(hand, axis=0)
+    norm_h = (hand - min_h) / (max_h - min_h)
     norm_hand = []
     for coordinates in norm_h:
         point = coordinates[0], coordinates[1]
@@ -124,11 +124,17 @@ def normalizeHandLandmarksAspect(hand):
     return norm_hand
 
 
-def normalizeHandLandmarks(hand):
+def normalizeHandLandmarksAspect(hand):
     # normalizes the coordinates for a single hand array of points to between 0 to 1
-    min_h = np.min(hand, axis=0)
-    max_h = np.max(hand, axis=0)
-    norm_h = (hand - min_h) / (max_h - min_h)
+    arr = np.array(hand)
+
+    x_range = np.max(arr[:, 0]) - np.min(arr[:, 0])
+    y_range = np.max(arr[:, 1]) - np.min(arr[:, 1])
+    max_range = max(x_range, y_range)
+
+    min_val = np.min(arr, axis=0)
+    norm_h = (arr - min_val) / max_range
+
     norm_hand = []
     for coordinates in norm_h:
         point = coordinates[0], coordinates[1]
