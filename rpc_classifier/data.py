@@ -20,7 +20,11 @@ def main():
     # checkData(config['data']['path'])
     checkData('.\data')
     data = dataToNormalizedCoordinates('.\data')
+    print(data)
     saveAsJson(data, '.\data')
+    data2 = loadFromJson('.\data')
+    print("------------------------------------")
+    print(data2)
 
 
 def checkData(data_path):
@@ -95,7 +99,6 @@ def dataToNormalizedCoordinates(data_path):
             data.append(gesture)
             num_files = len(files)
             print(f"\nNumber of files converted for {folder}: {num_files}")
-
     return data
 
 
@@ -108,6 +111,7 @@ def saveAsJson(data, path):
 
 
 def loadFromJson(path):
+    path = os.path.join(path, 'output.json')
     with open(path, 'r') as infile:
         json_data = json.load(infile)
 
