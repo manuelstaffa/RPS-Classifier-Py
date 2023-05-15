@@ -95,7 +95,7 @@ def dataToNormalizedCoordinates(data_path):
                 image = cv2.imread(file_path)
 
                 results = hands.process(image)
-                landmarks = getNormalizedHandLandmarks(results)
+                landmarks = getNormalizedHandsLandmarks(results)
                 print(landmarks)
                 print("--------------------")
                 gesture.append(landmarks)

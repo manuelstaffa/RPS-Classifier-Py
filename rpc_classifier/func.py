@@ -78,11 +78,6 @@ def getNormalizedHandsLandmarks(results):
     return normalizeHandsLandmarks(getHandsLandmarks(results))
 
 
-def getNormalizedHandLandmarks(results):
-    # shortcut to get an array of normalized hand landmarks
-    return normalizeHandLandmarks(getHandLandmarks(results))
-
-
 # ----------------------------------coords----------------------------------
 def getHandsLandmarks(results):
     # return an array of all visible hands, each of which contains an array
