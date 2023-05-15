@@ -25,7 +25,7 @@ def main():
 
 def checkData(data_path):
     # checks if data exists and has right file type
-    print(f"CHECK data")
+    print(f"\nCHECK data")
     try:
         folders = ['paper', 'rock', 'scissors']
         for folder in folders:
@@ -38,11 +38,11 @@ def checkData(data_path):
                 # if not checkImageDimensions(file_path):
                 #    raise Exception()
             num_files = len(files)
-            print(f"Number of files in {folder}: {num_files}")
-        print(f"SUCCESS: data exists")
+            print(f"\nNumber of files in {folder}: {num_files}")
+        print(f"\nSUCCESS: data exists")
         return True
     except:
-        print(f"ERROR: data error")
+        print(f"\nERROR: data error")
         return False
 
 
@@ -52,7 +52,7 @@ def checkImageDimensions(image_path):
     image_height, image_width, _ = image.shape
     if image_width != 300 or image_height != 200:
         print(
-            (f"ERROR: image has incorrect dimension {image_width}x{image_height}"))
+            (f"\nERROR: image has incorrect dimension {image_width}x{image_height}"))
         return False
     return True
 
@@ -67,7 +67,7 @@ def checkDataType(file_path):
 
 
 def dataToNormalizedCoordinates(data_path):
-    print(f"CONVERT data")
+    print(f"\nCONVERT data")
     data = []
     with mp_hands.Hands(
         max_num_hands=config[
@@ -84,37 +84,36 @@ def dataToNormalizedCoordinates(data_path):
             gesture = []
             folder_path = os.path.join(data_path, folder)
             files = os.listdir(folder_path)
+
             for file in tqdm(files):
                 file_path = os.path.join(folder_path, file)
                 image = cv2.imread(file_path)
                 results = hands.process(image)
-                gesture.append(getNormalizedHandLandmarks(results))
+                landmarks = getNormalizedHandLandmarks(results)
+                gesture.append(landmarks)
+
             data.append(gesture)
             num_files = len(files)
-            print(f"Number of files converted for {folder}: {num_files}")
+            print(f"\nNumber of files converted for {folder}: {num_files}")
 
     return data
 
 
 def saveAsJson(data, path):
-    # save converted data as json file
-    json_data = {}
-
-    for i, arr1 in enumerate(data):
-        key1 = 'paper' if i == 0 else 'rock' if i == 1 else 'scissors'
-        json_data[key1] = {}
-
-        for j, arr2 in enumerate(arr1):
-            key2 = str(j)
-            json_data[key1][key2] = []
-
-            for k, point in enumerate(arr2):
-                json_data[key1][key2].append({'x': point[0], 'y': point[1]})
+    json_data = [[list(map(list, arr)) for arr in arr1] for arr1 in data]
 
     path = os.path.join(path, 'output.json')
     with open(path, 'w') as outfile:
         json.dump(json_data, outfile)
-        print(f"SUCCESS: data saved as json")
+
+
+def loadFromJson(path):
+    with open(path, 'r') as infile:
+        json_data = json.load(infile)
+
+    data = [[[tuple(point) for point in arr] for arr in arr1]
+            for arr1 in json_data]
+    return data
 
 
 if __name__ == '__main__':
