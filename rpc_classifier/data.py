@@ -18,12 +18,11 @@ config.read('config.ini')
 
 
 def main():
-    # checkData(config['data']['path'])
     path = config['data']['path']
     checkData(path)
     data = dataToNormalizedCoordinates(path)
     saveAsJson(data, path)
-    data = loadFromJson(path)
+    # data = loadFromJson(path)
 
 
 def checkData(data_path):
