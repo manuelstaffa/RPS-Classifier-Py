@@ -110,13 +110,11 @@ def normalizeHandLandmarks(hand):
     # normalizes the coordinates for a single hand array of points to between 0 to 1
     # min_h = np.min(hand, axis=0)
     # max_h = np.max(hand, axis=0)
-    min_h0 = np.min(hand[:, 0])
-    max_h0 = np.max(hand[:, 0])
-    min_h1 = np.min(hand[:, 1])
-    max_h1 = np.max(hand[:, 1])
-    delta0 = max_h0-min_h0
-    delta1 = max_h1-min_h1
+    min_h0, max_h0 = np.min(hand[:, 0]), np.max(hand[:, 0])
+    min_h1, max_h1 = np.min(hand[:, 1]), np.max(hand[:, 1])
+    delta0, delta1 = max_h0-min_h0, max_h1-min_h1
     min_h, max_h = min_h0, max_h0 if delta0 > delta1 else max_h1, max_h1
+
     norm_h = (hand - min_h) / (max_h - min_h)
     norm_hand = []
     for coordinates in norm_h:
