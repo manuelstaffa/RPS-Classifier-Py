@@ -25,10 +25,11 @@ def main():
 
 
 def trainTestModel():
-    return
+    model = 0
+    return model
 
 
-def useModel():
+def useModel(model):
     return
 
 
