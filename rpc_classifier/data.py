@@ -19,47 +19,32 @@ config.read('config.ini')
 
 def main():
     # checkData(config['data']['path'])
-    checkData('.\data')
-    data = dataToNormalizedCoordinates('.\data')
-    print(data)
-    saveAsJson(data, '.\data')
-    data2 = loadFromJson('.\data')
-    print("------------------------------------")
-    print(data2)
+    path = config['data']['path']
+    checkData(path)
+    data = dataToNormalizedCoordinates(path)
+    saveAsJson(data, path)
+    data = loadFromJson(path)
 
 
 def checkData(data_path):
     # checks if data exists and has right file type
-    print(f"\nCHECK data")
     try:
         folders = ['paper', 'rock', 'scissors']
         for folder in folders:
             folder_path = os.path.join(data_path, folder)
             files = os.listdir(folder_path)
+
             for file in tqdm(files):
                 file_path = os.path.join(folder_path, file)
                 if not checkDataType(file_path):
                     raise Exception()
-                # if not checkImageDimensions(file_path):
-                #    raise Exception()
+
             num_files = len(files)
             print(f"\nNumber of files in {folder}: {num_files}")
-        print(f"\nSUCCESS: data exists")
         return True
     except:
-        print(f"\nERROR: data error")
+        print(f"\nERROR: data does not exists in this location")
         return False
-
-
-def checkImageDimensions(image_path):
-    # check if the dimensions of an image are a certain value
-    image = cv2.imread(image_path)
-    image_height, image_width, _ = image.shape
-    if image_width != 300 or image_height != 200:
-        print(
-            (f"\nERROR: image has incorrect dimension {image_width}x{image_height}"))
-        return False
-    return True
 
 
 def checkDataType(file_path):
@@ -68,21 +53,18 @@ def checkDataType(file_path):
     file_extension = split_tup[1]
     if file_extension in ['.png', '.jpg', '.jpeg']:
         return True
+    print(f"\nERROR: file with wrong type found")
     return False
 
 
 def dataToNormalizedCoordinates(data_path):
-    print(f"\nCONVERT data")
+    # converts data while removing empties
     data = []
     with mp_hands.Hands(
-        max_num_hands=config[
-            'mphands'].getint('max_num_hands'),
-        model_complexity=config[
-            'mphands'].getint('model_complexity'),
-        min_detection_confidence=config[
-            'mphands'].getfloat('min_detection_confidence'),
-        min_tracking_confidence=config[
-            'mphands'].getfloat('min_tracking_confidence')) as hands:
+            max_num_hands=1,
+            model_complexity=1,
+            min_detection_confidence=0.1,
+            min_tracking_confidence=0.1) as hands:
 
         folders = ['paper', 'rock', 'scissors']
         for folder in folders:
@@ -96,13 +78,14 @@ def dataToNormalizedCoordinates(data_path):
 
                 results = hands.process(image)
                 landmarks = getNormalizedHandsLandmarks(results)
-                print(landmarks)
-                print("--------------------")
-                gesture.append(landmarks)
+                if landmarks:
+                    gesture.append(landmarks[0])
 
             data.append(gesture)
             num_files = len(files)
-            print(f"\nNumber of files converted for {folder}: {num_files}")
+            num_conv = len(gesture)
+            print(
+                f"\nNumber of files converted for {folder}: {num_conv} of {num_files}")
     return data
 
 
