@@ -1,11 +1,9 @@
 from func import *
 
-import time
 import json
 import os
 import cv2
 import configparser
-import numpy as np
 import mediapipe as mp
 from tqdm import tqdm
 mp_drawing = mp.solutions.drawing_utils

@@ -9,6 +9,7 @@ import configparser
 import numpy as np
 import mediapipe as mp
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
@@ -21,7 +22,6 @@ config.read('config.ini')
 def main():
     path = config['data']['path']
     data = loadFromJson(path)
-    print(data)
 
 
 def trainTestModel():
