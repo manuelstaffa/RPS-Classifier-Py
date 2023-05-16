@@ -21,6 +21,7 @@ config.read('config.ini')
 def main():
     path = config['data']['path']
     data = loadFromJson(path)
+    print(data)
 
 
 def trainTestModel():

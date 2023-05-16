@@ -52,6 +52,8 @@ def main():
             # height=y (pixel rows), width=x (pixel columns), channels=color
             # image_height, image_width, _ = image.shape
 
+            # pass results to ml model
+
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):
                 drawHandsAnnotations(image, results)
