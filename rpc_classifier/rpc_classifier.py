@@ -17,21 +17,3 @@ mp_hands = mp.solutions.hands
 
 config = configparser.ConfigParser()
 config.read('config.ini')
-
-
-def main():
-    path = config['data']['path']
-    data = loadFromJson(path)
-
-
-def trainTestModel():
-    model = 0
-    return model
-
-
-def useModel(model):
-    return
-
-
-if __name__ == '__main__':
-    main()

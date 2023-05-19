@@ -65,10 +65,10 @@ def dataToNormalizedCoordinates(data_path):
 
         folders = ['paper', 'rock', 'scissors']
         for folder in folders:
-            gesture = []
             folder_path = os.path.join(data_path, folder)
             files = os.listdir(folder_path)
 
+            gesture = []
             for file in tqdm(files):
                 file_path = os.path.join(folder_path, file)
                 image = cv2.imread(file_path)
@@ -102,6 +102,18 @@ def loadFromJson(path):
     data = [[[tuple(point) for point in arr] for arr in arr1]
             for arr1 in json_data]
     return data
+
+
+def tagData(data):
+    folders = ['paper', 'rock', 'scissors']
+    tags = []
+    for i, gesture in enumerate(data):
+        tags.extend(folders[i] * len(gesture))
+    return data, tags
+
+
+def getTaggedData(path):
+    return tagData(loadFromJson(path))
 
 
 if __name__ == '__main__':
