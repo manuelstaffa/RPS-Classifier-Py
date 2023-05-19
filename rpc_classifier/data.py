@@ -106,10 +106,13 @@ def loadFromJson(path):
 
 def tagData(data):
     folders = ['paper', 'rock', 'scissors']
+    data_flat = []
     tags = []
     for i, gesture in enumerate(data):
-        tags.extend(folders[i] * len(gesture))
-    return data, tags
+        for hand in gesture:
+            data_flat.append(hand)
+            tags.append(folders[i])
+    return data_flat, tags
 
 
 def getTaggedData(path):
