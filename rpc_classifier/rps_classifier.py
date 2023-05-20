@@ -1,10 +1,9 @@
 from func import *
 from data import *
 
-from sklearn import svm
+from sklearn import svm, metrics
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn import datasets, metrics
+from sklearn.metrics import accuracy_score, f1_score
 import time
 import json
 import os
@@ -23,10 +22,12 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 
-data, target = getTaggedData(path=config['data']['path'])
-print("test", len(data), len(target))
+data, target = getTaggedData1d(path=config['data']['path'])
 X_train, X_test, y_train, y_test = train_test_split(
-    data, target, test_size=0.25, shuffle=False)
+    data, target, test_size=0.3, shuffle=True)
+
+# print(X_train[:3], '\n')
+# print(y_train[:10], '\n')
 
 classifier = svm.SVC()
 classifier.fit(X_train, y_train)

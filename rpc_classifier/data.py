@@ -23,6 +23,7 @@ def main():
     # data = loadFromJson(path)
 
 
+# ----------------------------------data integrity----------------------------------
 def checkData(data_path):
     # checks if data exists and has right file type
     try:
@@ -54,6 +55,7 @@ def checkDataType(file_path):
     return False
 
 
+# ----------------------------------convert data----------------------------------
 def dataToNormalizedCoordinates(data_path):
     # converts data while removing empties
     data = []
@@ -86,6 +88,7 @@ def dataToNormalizedCoordinates(data_path):
     return data
 
 
+# ----------------------------------save/load----------------------------------
 def saveAsJson(data, path):
     json_data = [[list(map(list, arr)) for arr in arr1] for arr1 in data]
 
@@ -104,6 +107,7 @@ def loadFromJson(path):
     return data
 
 
+# ----------------------------------tag data----------------------------------
 def tagData(data):
     folders = ['paper', 'rock', 'scissors']
     data_flat = []
@@ -115,8 +119,29 @@ def tagData(data):
     return data_flat, tags
 
 
+def tagData1d(data):
+    folders = ['paper', 'rock', 'scissors']
+    data_flat = []
+    tags = []
+    for i, gesture in enumerate(data):
+        for hand in gesture:
+            hand_flat = []
+            for point in hand:
+                x, y = point
+                hand_flat.append(x)
+                hand_flat.append(y)
+            data_flat.append(hand_flat)
+            tags.append(folders[i])
+    return data_flat, tags
+
+
+# ----------------------------------shortcuts----------------------------------
 def getTaggedData(path):
     return tagData(loadFromJson(path))
+
+
+def getTaggedData1d(path):
+    return tagData1d(loadFromJson(path))
 
 
 if __name__ == '__main__':
