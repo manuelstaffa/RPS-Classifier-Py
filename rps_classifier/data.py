@@ -108,14 +108,14 @@ def loadFromJson(path):
 
 
 # ----------------------------------tag data----------------------------------
-def tagData(data):
+def tagData2d(data):
     folders = ['paper', 'rock', 'scissors']
     data_flat = []
     tags = []
     for i, gesture in enumerate(data):
         for hand in gesture:
             data_flat.append(hand)
-            tags.append(folders[i])
+            tags.append(i)  # folders[i] for string tags
     return data_flat, tags
 
 
@@ -131,13 +131,13 @@ def tagData1d(data):
                 hand_flat.append(x)
                 hand_flat.append(y)
             data_flat.append(hand_flat)
-            tags.append(folders[i])
+            tags.append(i)  # folders[i] for string tags
     return data_flat, tags
 
 
 # ----------------------------------shortcuts----------------------------------
-def getTaggedData(path):
-    return tagData(loadFromJson(path))
+def getTaggedData2d(path):
+    return tagData2d(loadFromJson(path))
 
 
 def getTaggedData1d(path):
