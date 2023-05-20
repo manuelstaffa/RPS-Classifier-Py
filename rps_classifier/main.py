@@ -1,6 +1,6 @@
 from func import *
 from data import *
-from rpc_classifier import *
+from rps_classifier import *
 
 
 import time
