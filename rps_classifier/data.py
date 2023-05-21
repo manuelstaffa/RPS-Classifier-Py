@@ -144,5 +144,6 @@ def getTaggedData1d(path):
     return tagData1d(loadFromJson(path))
 
 
+# ----------------------------------main----------------------------------
 if __name__ == '__main__':
     main()
