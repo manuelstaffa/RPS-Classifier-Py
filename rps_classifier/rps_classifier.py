@@ -5,8 +5,10 @@ from sklearn import svm, metrics
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 import joblib
-from tensorflow import keras
-import tensorflow.python.keras.layers as layers
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.python.keras.optimizers import Adam
+from tensorflow.python.keras.models import save_model, load_model
 
 import os
 import configparser
@@ -25,9 +27,9 @@ def main():
     path = config['data']['path']
     X_train, X_test, y_train, y_test, data, target = prepareData(path)
     svm_model = trainSVM(X_train, X_test, y_train, y_test)
-    saveModel(svm_model, path, 'svm_classifier.pkl')
+    saveSVM(svm_model, path, 'svm_classifier.pkl')
     cnn_model = trainCNN(X_train, X_test, y_train, y_test, data)
-    saveModel(cnn_model, path, 'cnn_classifier.pkl')
+    saveCNN(cnn_model, path, 'cnn_classifier.h5')
 
 
 # ----------------------------------data----------------------------------
@@ -54,32 +56,39 @@ def trainSVM(X_train, X_test, y_train, y_test):
 
 
 def trainCNN(X_train, X_test, y_train, y_test, data):
-    num_landmarks = len(data[0])  # Number of landmarks in each sample
-    X_train_reshaped = X_train.reshape(-1, num_landmarks, 1)
-    X_test_reshaped = X_test.reshape(-1, num_landmarks, 1)
+    cnn_classifier = Sequential()
+    cnn_classifier.add(
+        Conv2D(32, (3, 3), activation='relu', input_shape=(64, 64, 3)))
+    cnn_classifier.add(MaxPooling2D(pool_size=(2, 2)))
+    cnn_classifier.add(Flatten())
+    cnn_classifier.add(Dense(64, activation='relu'))
+    cnn_classifier.add(Dense(10, activation='softmax'))
 
-    cnn_classifier = keras.Sequential([
-        layers.Conv1D(32, 3, activation='relu',
-                      input_shape=(num_landmarks, 1)),
-        layers.MaxPooling1D(2),
-        layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(3, activation='softmax')
-    ])
-    cnn_classifier.compile(optimizer='adam',
-                           loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    cnn_classifier.fit(X_train_reshaped, y_train, epochs=100, batch_size=32)
-    _, cnn_accuracy = cnn_classifier.evaluate(X_test_reshaped, y_test)
+    cnn_classifier.compile(optimizer=Adam(learning_rate=0.001),
+                           loss='categorical_crossentropy',
+                           metrics=['accuracy'])
+    cnn_classifier.fit(X_train, y_train, epochs=10, batch_size=32)
+
+    _, cnn_accuracy = cnn_classifier.evaluate(X_test, y_test)
     print("CNN Accuracy:", cnn_accuracy)
 
     return cnn_classifier
 
 
 # ----------------------------------save models----------------------------------
-def saveModel(model, path, filename):
+def saveSVM(model, path, filename):
     try:
         path_svm = os.path.join(path, filename)
         joblib.dump(model, path_svm)
+    except Exception as e:
+        print(e)
+        pass
+
+
+def saveCNN(model, path, filename):
+    try:
+        path_cnn = os.path.join(path, filename)
+        save_model(model, path_cnn)
     except Exception as e:
         print(e)
         pass
