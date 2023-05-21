@@ -4,8 +4,8 @@ import json
 import os
 import cv2
 import configparser
-import mediapipe as mp
 from tqdm import tqdm
+import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
