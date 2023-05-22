@@ -72,6 +72,11 @@ def drawNormalizedHands(image, results):
 
 
 # ----------------------------------shortcuts----------------------------------
+def resultsToModelInput(results):
+    # shortcut to get an array of arrays of normalized hand landmarks
+    return np.reshape(flattenData1d(getNormalizedHandsLandmarks(results)), (1, -1))
+
+
 def getNormalizedHandsLandmarks(results):
     # shortcut to get an array of arrays of normalized hand landmarks
     return normalizeHandsLandmarks(getHandsLandmarks(results))
@@ -137,3 +142,16 @@ def normalizeHandLandmarksAspect(hand):
         point = coordinates[0], coordinates[1]
         norm_hand.append(point)
     return norm_hand
+
+
+# ----------------------------------flatten----------------------------------
+def flattenData1d(data):
+    data_flat = []
+    for hand in data:
+        hand_flat = []
+        for point in hand:
+            x, y = point
+            hand_flat.append(x)
+            hand_flat.append(y)
+        data_flat.append(hand_flat)
+    return data_flat

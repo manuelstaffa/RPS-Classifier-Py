@@ -136,11 +136,11 @@ def tagData1d(data):
 
 
 # ----------------------------------shortcuts----------------------------------
-def getTaggedData2d(path):
+def loadTaggedData2d(path):
     return tagData2d(loadFromJson(path))
 
 
-def getTaggedData1d(path):
+def loadTaggedData1d(path):
     return tagData1d(loadFromJson(path))
 
 

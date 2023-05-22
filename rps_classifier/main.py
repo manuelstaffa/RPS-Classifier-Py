@@ -2,7 +2,7 @@ from func import *
 from data import *
 from rps_classifier import *
 
-from sklearn.externals import joblib
+import joblib
 import cv2
 import configparser
 import numpy as np
@@ -12,10 +12,14 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+
 def main():
-    # load config file
-    config = configparser.ConfigParser()
-    config.read('config.ini')
+    # load model
+    path = config['data']['path']
+    svm = loadSVM(path, 'svm_classifier.pkl')
 
     # cv2 webcam stream
     cv2.namedWindow("main", cv2.WINDOW_NORMAL)
@@ -42,6 +46,14 @@ def main():
             # process image
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = hands.process(image)
+            try:
+                X = resultsToModelInput(results)
+                print('X', X)
+                predictions = svm.predict(X)
+                print('pred:', predictions)
+            except:
+                print("error")
+                pass
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             # cv2 image properties
