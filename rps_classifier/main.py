@@ -53,13 +53,13 @@ def main():
             # image_height, image_width, _ = image.shape
 
             # pass results to ml model
-            try:
-                X = resultsToModelInput(image, results)
-                # [0='paper', 1='rock', 2='scissors']
+            # [0='paper', 1='rock', 2='scissors']
+            X = resultsToModelInput(image, results)
+            predictions = []
+            if X:
                 predictions = svm.predict(X)
-                print(predictions)
-            except:
-                pass
+            print(predictions)
+            
             
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):

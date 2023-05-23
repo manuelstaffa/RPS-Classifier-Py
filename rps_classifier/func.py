@@ -112,17 +112,22 @@ def getHandsLandmarksFlipped(image, results):
     # to fit into ml model
     hands = getHandsLandmarks(image, results)
     hands_flipped = []
-    avg_x = 400
+    image_height, image_width, _ = image.shape
+    avg_x = image_width/2
     if len(hands) > 1:
-        avg_x = np.mean(np.concatenate(hands)[:, 0])
+        avg_x = np.mean(np.concatenate(hands)[:, 0])*image_width
+    print(avg_x)
+    cv2.line(image, (int(avg_x), 0), (int(avg_x), image_height), (0, 255, 0), 2)
         
     for hand in hands:
         hand_flipped = hand
-        avg_x_hand = np.mean(np.array(hand)[:, 0])
+        avg_x_hand = np.mean(np.array(hand)[:, 0])*image_width
         if avg_x_hand < avg_x:
-            hand_flipped= flipHand(hand)
+            hand_flipped = flipHand(hand)
         hands_flipped.append(hand_flipped)
-    return hands_flipped
+    if hands_flipped:
+        return hands_flipped
+    return hands_flipped.append([])
             
                      
 def flipHand(hand):
@@ -136,9 +141,10 @@ def normalizeHandsLandmarksAspect(hands):
     # normalizes the coordinates for an array of all visible hands, so that
     # each hand is represented in the same size (0 to 1) regardless of on-screen size
     norm_hands = []
-    for hand in hands:
-        norm_hand = normalizeHandLandmarksAspect(hand)
-        norm_hands.append(norm_hand)
+    if hands:
+        for hand in hands:
+            norm_hand = normalizeHandLandmarksAspect(hand)
+            norm_hands.append(norm_hand)
     return norm_hands
 
 
@@ -184,11 +190,12 @@ def normalizeHandLandmarksAspect(hand):
 # ----------------------------------flatten----------------------------------
 def flattenData(data):
     data_flat = []
-    for hand in data:
-        hand_flat = []
-        for point in hand:
-            x, y = point
-            hand_flat.append(x)
-            hand_flat.append(y)
-        data_flat.append(hand_flat)
+    if data: 
+        for hand in data:
+            hand_flat = []
+            for point in hand:
+                x, y = point
+                hand_flat.append(x)
+                hand_flat.append(y)
+            data_flat.append(hand_flat)
     return data_flat
