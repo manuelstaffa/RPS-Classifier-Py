@@ -19,12 +19,12 @@ def resultsToModelInput(image, results):
 
 def getNormalizedHandsLandmarks(image, results):
     # shortcut to get an array of arrays of normalized hand landmarks
-    return normalizeHandsLandmarks(getHandsLandmarks(image, results))
+    return normalizeHandsLandmarksAspect(getHandsLandmarks(image, results))
 
 
 def getNormalizedHandsLandmarksFlipped(image, results):
     # shortcut to get an array of arrays of normalized hand landmarks
-    return normalizeHandsLandmarks(getHandsLandmarksFlipped(image, results))
+    return normalizeHandsLandmarksAspect(getHandsLandmarksFlipped(image, results))
 
 
 # ----------------------------------math----------------------------------
@@ -78,7 +78,7 @@ def drawHandsBounds(image, results):
 
 
 def drawNormalizedHands(image, results):
-    hands = getNormalizedHandsLandmarks(results)
+    hands = getNormalizedHandsLandmarks(image, results)
     for i, hand in enumerate(hands):
         for point in hand:
             x, y = point
@@ -110,29 +110,29 @@ def getHandsLandmarksFlipped(image, results):
     # return an array of all visible hands, each of which contains an array
     # of points representing the coordinates of all visible landmarks, and flip
     # to fit into ml model
-    hands = getHandsLandmarks(results)
+    hands = getHandsLandmarks(image, results)
     hands_flipped = []
-    avg_x = np.mean(np.concatenate(hands)[:, 0])
+    avg_x = 400
+    if len(hands) > 1:
+        avg_x = np.mean(np.concatenate(hands)[:, 0])
+        
     for hand in hands:
         hand_flipped = hand
-        _, image_width, _ = image.shape
-        avg_x_hand = image_width/2
-        if len(hands) > 1:
-            avg_x_hand = np.mean(np.array(hand)[:, 0])
+        avg_x_hand = np.mean(np.array(hand)[:, 0])
         if avg_x_hand < avg_x:
             hand_flipped= flipHand(hand)
         hands_flipped.append(hand_flipped)
     return hands_flipped
-                
             
+                     
 def flipHand(hand):
     max_x = max(point[0] for point in hand)
     hand_flipped = [(2*max_x - point[0], point[1]) for point in hand]
-    return hand_flipped
-    
+    return hand_flipped   
+
 
 # ----------------------------------normalize----------------------------------
-def normalizeHandsLandmarks(hands):
+def normalizeHandsLandmarksAspect(hands):
     # normalizes the coordinates for an array of all visible hands, so that
     # each hand is represented in the same size (0 to 1) regardless of on-screen size
     norm_hands = []
@@ -144,35 +144,41 @@ def normalizeHandsLandmarks(hands):
 
 def normalizeHandLandmarks(hand):
     # normalizes the coordinates for a single hand array of points to between 0 to 1
-    min_h0, max_h0 = np.min(hand[:, 0]), np.max(hand[:, 0])
-    min_h1, max_h1 = np.min(hand[:, 1]), np.max(hand[:, 1])
-    delta0, delta1 = max_h0-min_h0, max_h1-min_h1
-    min_h, max_h = min_h0, max_h0 if delta0 > delta1 else max_h1, max_h1
+    try:
+        min_h0, max_h0 = np.min(hand[:, 0]), np.max(hand[:, 0])
+        min_h1, max_h1 = np.min(hand[:, 1]), np.max(hand[:, 1])
+        delta0, delta1 = max_h0-min_h0, max_h1-min_h1
+        min_h, max_h = min_h0, max_h0 if delta0 > delta1 else max_h1, max_h1
 
-    norm_h = (hand - min_h) / (max_h - min_h)
-    norm_hand = []
-    for coordinates in norm_h:
-        point = coordinates[0], coordinates[1]
-        norm_hand.append(point)
-    return norm_hand
+        norm_h = (hand - min_h) / (max_h - min_h)
+        norm_hand = []
+        for coordinates in norm_h:
+            point = coordinates[0], coordinates[1]
+            norm_hand.append(point)
+        return norm_hand
+    except:
+        pass
 
 
 def normalizeHandLandmarksAspect(hand):
     # normalizes the coordinates for a single hand array of points to between 0 to 1
-    arr = np.array(hand)
+    try:
+        arr = np.array(hand)
 
-    x_range = np.max(arr[:, 0]) - np.min(arr[:, 0])
-    y_range = np.max(arr[:, 1]) - np.min(arr[:, 1])
-    max_range = max(x_range, y_range)
+        x_range = np.max(arr[:, 0]) - np.min(arr[:, 0])
+        y_range = np.max(arr[:, 1]) - np.min(arr[:, 1])
+        max_range = max(x_range, y_range)
 
-    min_val = np.min(arr, axis=0)
-    norm_h = (arr - min_val) / max_range
+        min_val = np.min(arr, axis=0)
+        norm_h = (arr - min_val) / max_range
 
-    norm_hand = []
-    for coordinates in norm_h:
-        point = coordinates[0], coordinates[1]
-        norm_hand.append(point)
-    return norm_hand
+        norm_hand = []
+        for coordinates in norm_h:
+            point = coordinates[0], coordinates[1]
+            norm_hand.append(point)
+        return norm_hand
+    except:
+        pass
 
 
 # ----------------------------------flatten----------------------------------

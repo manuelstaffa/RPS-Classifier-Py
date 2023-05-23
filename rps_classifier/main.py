@@ -46,14 +46,6 @@ def main():
             # process image
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = hands.process(image)
-            try:
-                # hands on left of current (flipped) view work
-                X = resultsToModelInput(image, results)
-                # [0='paper', 1='rock', 2='scissors']
-                predictions = svm.predict(X)
-                print(predictions)
-            except:
-                pass
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             # cv2 image properties
@@ -61,7 +53,14 @@ def main():
             # image_height, image_width, _ = image.shape
 
             # pass results to ml model
-
+            try:
+                X = resultsToModelInput(image, results)
+                # [0='paper', 1='rock', 2='scissors']
+                predictions = svm.predict(X)
+                print(predictions)
+            except:
+                pass
+            
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):
                 drawHandsAnnotations(image, results)
