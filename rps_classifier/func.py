@@ -85,6 +85,18 @@ def drawNormalizedHands(image, results):
             x, y = round(x*100), round(y*100)
             center = (x, y+i*100)
             cv2.circle(image, center, 2, (255, 255, 255), -1)
+            
+            
+def drawHandSeparator(image, results):
+    # return an array of all visible hands, each of which contains an array
+    # of points representing the coordinates of all visible landmarks, and flip
+    # to fit into ml model
+    hands = getHandsLandmarks(image, results)
+    image_height, image_width, _ = image.shape
+    avg_x = image_width/2
+    if len(hands) > 1:
+        avg_x = np.mean(np.concatenate(hands)[:, 0])*image_width
+    cv2.line(image, (int(avg_x), 0), (int(avg_x), image_height), (0, 255, 0), 2)
 
 
 # ----------------------------------coords----------------------------------
@@ -112,16 +124,13 @@ def getHandsLandmarksFlipped(image, results):
     # to fit into ml model
     hands = getHandsLandmarks(image, results)
     hands_flipped = []
-    image_height, image_width, _ = image.shape
-    avg_x = image_width/2
+    avg_x = 0.5
     if len(hands) > 1:
-        avg_x = np.mean(np.concatenate(hands)[:, 0])*image_width
-    print(avg_x)
-    cv2.line(image, (int(avg_x), 0), (int(avg_x), image_height), (0, 255, 0), 2)
+        avg_x = np.mean(np.concatenate(hands)[:, 0])
         
     for hand in hands:
         hand_flipped = hand
-        avg_x_hand = np.mean(np.array(hand)[:, 0])*image_width
+        avg_x_hand = np.mean(np.array(hand)[:, 0])
         if avg_x_hand < avg_x:
             hand_flipped = flipHand(hand)
         hands_flipped.append(hand_flipped)

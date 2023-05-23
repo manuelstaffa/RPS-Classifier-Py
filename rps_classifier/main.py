@@ -68,6 +68,8 @@ def main():
                 drawHandsBounds(image, results)
             if config['debug'].getboolean('draw_normalized_hand'):
                 drawNormalizedHands(image, results)
+            if config['debug'].getboolean('draw_speparator'):
+                drawHandSeparator(image, results)
 
             # flip the image horizontally for a selfie-view display
             cv2.imshow('main', cv2.flip(image, 1))
