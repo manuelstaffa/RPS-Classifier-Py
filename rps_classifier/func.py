@@ -12,19 +12,19 @@ config.read('config.ini')
 
 
 # ----------------------------------shortcuts----------------------------------
-def resultsToModelInput(results):
+def resultsToModelInput(image, results):
     # shortcut to get an array of arrays of normalized hand landmarks
-    return flattenData(getNormalizedHandsLandmarksFlipped(results))
+    return flattenData(getNormalizedHandsLandmarksFlipped(image, results))
 
 
-def getNormalizedHandsLandmarks(results):
+def getNormalizedHandsLandmarks(image, results):
     # shortcut to get an array of arrays of normalized hand landmarks
-    return normalizeHandsLandmarks(getHandsLandmarks(results))
+    return normalizeHandsLandmarks(getHandsLandmarks(image, results))
 
 
-def getNormalizedHandsLandmarksFlipped(results):
+def getNormalizedHandsLandmarksFlipped(image, results):
     # shortcut to get an array of arrays of normalized hand landmarks
-    return normalizeHandsLandmarks(getHandsLandmarksFlipped(results))
+    return normalizeHandsLandmarks(getHandsLandmarksFlipped(image, results))
 
 
 # ----------------------------------math----------------------------------
@@ -88,7 +88,7 @@ def drawNormalizedHands(image, results):
 
 
 # ----------------------------------coords----------------------------------
-def getHandsLandmarks(results):
+def getHandsLandmarks(image, results):
     # return an array of all visible hands, each of which contains an array
     # of points representing the coordinates of all visible landmarks
     hands = []
@@ -106,7 +106,7 @@ def getHandsLandmarks(results):
     return hands
 
 
-def getHandsLandmarksFlipped(results):
+def getHandsLandmarksFlipped(image, results):
     # return an array of all visible hands, each of which contains an array
     # of points representing the coordinates of all visible landmarks, and flip
     # to fit into ml model
@@ -115,7 +115,10 @@ def getHandsLandmarksFlipped(results):
     avg_x = np.mean(np.concatenate(hands)[:, 0])
     for hand in hands:
         hand_flipped = hand
-        avg_x_hand = np.mean(np.array(hand)[:, 0])
+        _, image_width, _ = image.shape
+        avg_x_hand = image_width/2
+        if len(hands) > 1:
+            avg_x_hand = np.mean(np.array(hand)[:, 0])
         if avg_x_hand < avg_x:
             hand_flipped= flipHand(hand)
         hands_flipped.append(hand_flipped)

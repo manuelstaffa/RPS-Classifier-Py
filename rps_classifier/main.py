@@ -48,7 +48,8 @@ def main():
             results = hands.process(image)
             try:
                 # hands on left of current (flipped) view work
-                X = resultsToModelInput(results)
+                X = resultsToModelInput(image, results)
+                # [0='paper', 1='rock', 2='scissors']
                 predictions = svm.predict(X)
                 print(predictions)
             except:
