@@ -68,7 +68,7 @@ def main():
                 drawHandsBounds(image, results)
             if config['debug'].getboolean('draw_normalized_hand'):
                 drawNormalizedHands(image, results)
-            if config['debug'].getboolean('draw_speparator'):
+            if config['debug'].getboolean('draw_separator'):
                 drawHandSeparator(image, results)
 
             # flip the image horizontally for a selfie-view display
