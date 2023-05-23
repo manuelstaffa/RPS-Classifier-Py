@@ -47,12 +47,11 @@ def main():
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = hands.process(image)
             try:
+                # hands on left of current (flipped) view work
                 X = resultsToModelInput(results)
-                print('X', X)
                 predictions = svm.predict(X)
-                print('pred:', predictions)
+                print(predictions)
             except:
-                print("error")
                 pass
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 

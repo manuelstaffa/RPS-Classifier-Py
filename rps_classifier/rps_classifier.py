@@ -12,10 +12,6 @@ from tensorflow.python.keras.models import save_model, load_model
 import os
 import configparser
 import numpy as np
-import mediapipe as mp
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_hands = mp.solutions.hands
 
 
 config = configparser.ConfigParser()
@@ -24,7 +20,7 @@ config.read('config.ini')
 
 def main():
     path = config['data']['path']
-    X_train, X_test, y_train, y_test, data, target = prepareData(path)
+    X_train, X_test, y_train, y_test, _, _ = prepareData(path)
     svm_model = trainSVM(X_train, X_test, y_train, y_test)
     saveSVM(svm_model, path, 'svm_classifier.pkl')
     # cnn_model = trainCNN(X_train, X_test, y_train, y_test, data)
@@ -33,7 +29,7 @@ def main():
 
 # ----------------------------------data----------------------------------
 def prepareData(path):
-    data, target = loadTaggedData1d(path)
+    data, target = loadTaggedData(path)
     print(data)
     data, target = np.array(data), np.array(target)
     X_train, X_test, y_train, y_test = train_test_split(

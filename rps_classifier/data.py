@@ -21,15 +21,20 @@ def main():
     data = dataToNormalizedCoordinates(path)
     saveAsJson(data, path)
     # data = loadFromJson(path)
+    
+    
+# ----------------------------------shortcuts----------------------------------
+def loadTaggedData(path):
+    return tagData(loadFromJson(path))
 
 
 # ----------------------------------data integrity----------------------------------
-def checkData(data_path):
+def checkData(path):
     # checks if data exists and has right file type
     try:
         folders = ['paper', 'rock', 'scissors']
         for folder in folders:
-            folder_path = os.path.join(data_path, folder)
+            folder_path = os.path.join(path, folder)
             files = os.listdir(folder_path)
 
             for file in tqdm(files):
@@ -38,7 +43,7 @@ def checkData(data_path):
                     raise Exception()
 
             num_files = len(files)
-            print(f"\nNumber of files in {folder}: {num_files}")
+            print(f"\nNumber of files in folder {folder}: {num_files}")
         return True
     except:
         print(f"\nERROR: data does not exists in this location")
@@ -56,7 +61,7 @@ def checkDataType(file_path):
 
 
 # ----------------------------------convert data----------------------------------
-def dataToNormalizedCoordinates(data_path):
+def dataToNormalizedCoordinates(path):
     # converts data while removing empties
     data = []
     with mp_hands.Hands(
@@ -67,7 +72,7 @@ def dataToNormalizedCoordinates(data_path):
 
         folders = ['paper', 'rock', 'scissors']
         for folder in folders:
-            folder_path = os.path.join(data_path, folder)
+            folder_path = os.path.join(path, folder)
             files = os.listdir(folder_path)
 
             gesture = []
@@ -108,18 +113,7 @@ def loadFromJson(path):
 
 
 # ----------------------------------tag data----------------------------------
-def tagData2d(data):
-    folders = ['paper', 'rock', 'scissors']
-    data_flat = []
-    tags = []
-    for i, gesture in enumerate(data):
-        for hand in gesture:
-            data_flat.append(hand)
-            tags.append(i)  # folders[i] for string tags
-    return data_flat, tags
-
-
-def tagData1d(data):
+def tagData(data):
     folders = ['paper', 'rock', 'scissors']
     data_flat = []
     tags = []
@@ -133,15 +127,6 @@ def tagData1d(data):
             data_flat.append(hand_flat)
             tags.append(i)  # folders[i] for string tags
     return data_flat, tags
-
-
-# ----------------------------------shortcuts----------------------------------
-def loadTaggedData2d(path):
-    return tagData2d(loadFromJson(path))
-
-
-def loadTaggedData1d(path):
-    return tagData1d(loadFromJson(path))
 
 
 # ----------------------------------main----------------------------------

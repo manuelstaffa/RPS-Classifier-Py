@@ -11,6 +11,22 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 
+# ----------------------------------shortcuts----------------------------------
+def resultsToModelInput(results):
+    # shortcut to get an array of arrays of normalized hand landmarks
+    return flattenData(getNormalizedHandsLandmarksFlipped(results))
+
+
+def getNormalizedHandsLandmarks(results):
+    # shortcut to get an array of arrays of normalized hand landmarks
+    return normalizeHandsLandmarks(getHandsLandmarks(results))
+
+
+def getNormalizedHandsLandmarksFlipped(results):
+    # shortcut to get an array of arrays of normalized hand landmarks
+    return normalizeHandsLandmarks(getHandsLandmarksFlipped(results))
+
+
 # ----------------------------------math----------------------------------
 def toPixelCoordinates(image, point):
     # convert percentage based coordinates to absolute pixel coordinates
@@ -71,17 +87,6 @@ def drawNormalizedHands(image, results):
             cv2.circle(image, center, 2, (255, 255, 255), -1)
 
 
-# ----------------------------------shortcuts----------------------------------
-def resultsToModelInput(results):
-    # shortcut to get an array of arrays of normalized hand landmarks
-    return np.reshape(flattenData1d(getNormalizedHandsLandmarks(results)), (1, -1))
-
-
-def getNormalizedHandsLandmarks(results):
-    # shortcut to get an array of arrays of normalized hand landmarks
-    return normalizeHandsLandmarks(getHandsLandmarks(results))
-
-
 # ----------------------------------coords----------------------------------
 def getHandsLandmarks(results):
     # return an array of all visible hands, each of which contains an array
@@ -101,6 +106,29 @@ def getHandsLandmarks(results):
     return hands
 
 
+def getHandsLandmarksFlipped(results):
+    # return an array of all visible hands, each of which contains an array
+    # of points representing the coordinates of all visible landmarks, and flip
+    # to fit into ml model
+    hands = getHandsLandmarks(results)
+    hands_flipped = []
+    avg_x = np.mean(np.concatenate(hands)[:, 0])
+    for hand in hands:
+        hand_flipped = hand
+        avg_x_hand = np.mean(np.array(hand)[:, 0])
+        if avg_x_hand < avg_x:
+            hand_flipped= flipHand(hand)
+        hands_flipped.append(hand_flipped)
+    return hands_flipped
+                
+            
+def flipHand(hand):
+    max_x = max(point[0] for point in hand)
+    hand_flipped = [(2*max_x - point[0], point[1]) for point in hand]
+    return hand_flipped
+    
+
+# ----------------------------------normalize----------------------------------
 def normalizeHandsLandmarks(hands):
     # normalizes the coordinates for an array of all visible hands, so that
     # each hand is represented in the same size (0 to 1) regardless of on-screen size
@@ -145,7 +173,7 @@ def normalizeHandLandmarksAspect(hand):
 
 
 # ----------------------------------flatten----------------------------------
-def flattenData1d(data):
+def flattenData(data):
     data_flat = []
     for hand in data:
         hand_flat = []
