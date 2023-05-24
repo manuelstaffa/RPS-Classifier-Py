@@ -2,7 +2,7 @@ from func import *
 from data import *
 from rps_classifier import *
 
-import joblib
+import time
 import cv2
 import configparser
 import numpy as np
@@ -20,6 +20,13 @@ def main():
     # load model
     path = config['data']['path']
     svm = loadSVM(path, 'svm_classifier.pkl')
+    
+    start_time = time.time()
+    points_h1 = []
+    points_h2 = []
+    stationary = False
+    predicted = False
+    result_text = ''
 
     # cv2 webcam stream
     cv2.namedWindow("main", cv2.WINDOW_NORMAL)
@@ -50,16 +57,58 @@ def main():
 
             # cv2 image properties
             # height=y (pixel rows), width=x (pixel columns), channels=color
-            # image_height, image_width, _ = image.shape
+            image_height, image_width, _ = image.shape
+            drawPlayerNames(image)
 
             # pass results to ml model
             # [0='paper', 1='rock', 2='scissors']
+            # remember final image is flipped
+            current_time = time.time()
+            frequency = 0.1
+            total_time = 1.5
+            accuracy = 0.2
+            win_time = 8
+            
             X = resultsToModelInput(image, results)
             predictions = []
             if X:
                 predictions = svm.predict(X)
-            print(predictions)
             
+                if current_time - start_time > frequency and len(X) == 2:
+                    start_time = current_time
+                    
+                    amount = total_time/frequency
+                    points_h1.append(avgCoordinates(X, 0)) 
+                    if len(points_h1) > amount:
+                        points_h1.pop(0)
+                    points_h2.append(avgCoordinates(X, 1)) 
+                    if len(points_h2) > amount:
+                        points_h2.pop(0)
+                        
+                    if (len(points_h1) >= amount 
+                            and len(points_h2) >= amount 
+                            and maxDistance(points_h1) < accuracy 
+                            and maxDistance(points_h2) < accuracy):
+                        stationary = True
+                
+                if stationary and not predicted:        
+                    stationary = False
+                    predicted = True
+                    result_text = evaluateResults(image, predictions)
+                    eval_time = current_time
+                    #print(predictions, result_text)
+            
+            result_text_time = ""      
+            if predicted:
+                result_text_time = result_text + f" [{win_time-round(current_time - eval_time)}s]"
+                if current_time - eval_time > win_time:
+                    stationary = False
+                    predicted = False
+                    points_h1.clear()
+                    points_h2.clear() 
+                    result_text = ''
+                    
+            putTextCenter(image, result_text_time, -3, (255, 255, 255), 3)          
             
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):
@@ -70,7 +119,9 @@ def main():
                 drawNormalizedHands(image, results)
             if config['debug'].getboolean('draw_separator'):
                 drawHandSeparator(image, results)
-
+            if config['debug'].getboolean('draw_predictions'):
+                drawResultText(image, predictions)  
+                
             # flip the image horizontally for a selfie-view display
             cv2.imshow('main', cv2.flip(image, 1))
 

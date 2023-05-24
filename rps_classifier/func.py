@@ -1,5 +1,7 @@
 import cv2
 import configparser
+import math
+import time
 import numpy as np
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
@@ -72,9 +74,6 @@ def drawHandsBounds(image, results):
             cv2.rectangle(image, p_min, p_max, (0, 255, 0), 2)
             # cv2.line(image, p_min, (0, 0), (0, 255, 0), 2)
             # cv2.line(image, p_max, (0, 0), (0, 255, 0), 2)
-            cv2.putText(img=image, text="Hand "+str(hand), org=(p_max[0], p_min[1]-1),
-                        fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
-                        color=(0, 255, 0), thickness=2, bottomLeftOrigin=True)
 
 
 def drawNormalizedHands(image, results):
@@ -97,6 +96,34 @@ def drawHandSeparator(image, results):
     if len(hands) > 1:
         avg_x = np.mean(np.concatenate(hands)[:, 0])*image_width
     cv2.line(image, (int(avg_x), 0), (int(avg_x), image_height), (0, 255, 0), 2)
+    
+
+def drawResultText(image, predictions):
+    if len(predictions) == 2:
+        gestures = ['paper', 'rock', 'scissors']
+        pred_text = []
+        for i in predictions:
+            pred_text.append(gestures[i])
+    
+        image_height, image_width, _ = image.shape
+        cv2.putText(img=image, text=pred_text[0], org=(int(image_width/2-5), int(image_height-5)),
+                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
+                    color=(0, 255, 0), thickness=2, bottomLeftOrigin=True)
+        cv2.putText(img=image, text=pred_text[1], org=(int(image_width-5), int(image_height-5)),
+                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
+                    color=(0, 255, 0), thickness=2, bottomLeftOrigin=True)
+    else:
+        return
+    
+    
+def drawPlayerNames(image):
+    _, image_width, _ = image.shape
+    cv2.putText(img=image, text="Player 1", org=(int(image_width/4+50), int(15)),
+                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
+                    color=(255, 255, 255), thickness=2, bottomLeftOrigin=True)
+    cv2.putText(img=image, text="Player 2", org=(int(image_width/4*3+50), int(15)),
+                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
+                    color=(255, 255, 255), thickness=2, bottomLeftOrigin=True)
 
 
 # ----------------------------------coords----------------------------------
@@ -134,12 +161,14 @@ def getHandsLandmarksFlipped(image, results):
         if avg_x_hand < avg_x:
             hand_flipped = flipHand(hand)
         hands_flipped.append(hand_flipped)
-    if hands_flipped:
-        return hands_flipped
-    return hands_flipped.append([])
-            
+    #print("f", [np.mean(np.array(arr)[:, 0]) for arr in hands_flipped])
+    hands_sorted = sorted(hands_flipped, key=lambda arr: np.mean(np.array(arr)[:, 0]))
+    #print("s", [np.mean(np.array(arr)[:, 0]) for arr in hands_sorted])
+    return hands_sorted
+        
                      
 def flipHand(hand):
+    # flip hand coords
     max_x = max(point[0] for point in hand)
     hand_flipped = [(2*max_x - point[0], point[1]) for point in hand]
     return hand_flipped   
@@ -208,3 +237,59 @@ def flattenData(data):
                 hand_flat.append(y)
             data_flat.append(hand_flat)
     return data_flat
+
+
+# ----------------------------------:)----------------------------------
+def avgCoordinates(array, index):
+    arr = array[index]
+    total_points = len(arr) // 2
+    sum_x = sum(arr[i] for i in range(0, len(arr), 2))
+    sum_y = sum(arr[i] for i in range(1, len(arr), 2))
+    avgx = sum_x / total_points
+    avgy = sum_y / total_points
+    return (avgx, avgy)
+
+
+def maxDistance(points):
+    max_distance = 0
+    for i in range(len(points)):
+        for j in range(i+1, len(points)):
+            distance = math.dist(points[i], points[j])
+            if distance > max_distance:
+                max_distance = distance
+    return max_distance
+
+
+def evaluateResults(image, predictions):
+    # p1 lower x value, p2 higherx value
+    # [0='paper', 1='rock', 2='scissors']
+    image_height, image_width, _ = image.shape
+    text = ''
+    p1, p2 = predictions[0], predictions[1]
+    if (p1 == 0 and p2 == 1 
+            or p1 == 1 and p2 == 2 
+            or p1 == 2 and p2 == 0):
+        text = 'Player 1 wins!'
+    elif (p2 == 0 and p1 == 1 
+            or p2 == 1 and p1 == 2 
+            or p2 == 2 and p1 == 0):
+        text = 'Player 2 wins!'
+    else:
+        text = 'Draw!'     
+    return text
+
+
+def putTextCenter(image, text, font_scale, color, thickness):
+    font=cv2.FONT_HERSHEY_PLAIN
+    text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
+    text_width, text_height = text_size
+
+    # Calculate the center position
+    image_height, image_width = image.shape[:2]
+    center_x = (image_width - text_width) // 2
+    center_y = (image_height + text_height) // 2
+
+    # Draw the text at the center position
+    cv2.putText(image, text, (center_x, center_y), 
+                font, font_scale, color, thickness, 
+                bottomLeftOrigin=True)
