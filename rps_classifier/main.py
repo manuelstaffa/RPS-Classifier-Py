@@ -57,7 +57,7 @@ def main():
 
             # cv2 image properties
             # height=y (pixel rows), width=x (pixel columns), channels=color
-            image_height, image_width, _ = image.shape
+            # image_height, image_width, _ = image.shape
             drawPlayerNames(image)
 
             # pass results to ml model
