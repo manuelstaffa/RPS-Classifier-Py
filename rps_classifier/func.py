@@ -1,7 +1,6 @@
 import cv2
 import configparser
 import math
-import time
 import numpy as np
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
