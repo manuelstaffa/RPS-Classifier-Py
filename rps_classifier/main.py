@@ -31,7 +31,7 @@ def main():
     # cv2 webcam stream
     cv2.namedWindow("main", cv2.WINDOW_NORMAL)
     # default 640x480
-    cv2.resizeWindow('main', 900, 650)
+    cv2.resizeWindow('main', 1200, 900)
     capture = cv2.VideoCapture(0)
     with mp_hands.Hands(
             max_num_hands=config[
