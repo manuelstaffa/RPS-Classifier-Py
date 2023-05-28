@@ -20,7 +20,7 @@ config.read('config.ini')
 
 def main():
     path = config['data']['path']
-    X_train, X_test, y_train, y_test, _, _ = prepareData(path)
+    X_train, X_test, y_train, y_test, data, _ = prepareData(path)
     svm_model = trainSVM(X_train, X_test, y_train, y_test)
     saveSVM(svm_model, path, 'svm_classifier.pkl')
     # cnn_model = trainCNN(X_train, X_test, y_train, y_test, data)
@@ -30,7 +30,6 @@ def main():
 # ----------------------------------data----------------------------------
 def prepareData(path):
     data, target = loadTaggedData(path)
-    print(data)
     data, target = np.array(data), np.array(target)
     X_train, X_test, y_train, y_test = train_test_split(
         data, target, test_size=0.25, shuffle=True)
