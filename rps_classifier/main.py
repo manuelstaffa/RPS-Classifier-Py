@@ -91,7 +91,8 @@ def main():
                     points_h2.append(avgCoordinates(X, 1)) 
                     if len(points_h2) > amount:
                         points_h2.pop(0)
-                        
+                    
+                    # no movement detected for time period   
                     if (len(points_h1) >= amount 
                             and len(points_h2) >= amount 
                             and maxDistance(points_h1) < movement_accuracy 
