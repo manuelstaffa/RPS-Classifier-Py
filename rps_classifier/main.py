@@ -117,7 +117,8 @@ def main():
                     points_h1.clear()
                     points_h2.clear() 
                     result_text = ''
-                    
+            
+            # draw game result text
             drawTextCenter(image, result_text_time, -2, (255, 255, 255), 2)          
             
             # draw hand annotations
