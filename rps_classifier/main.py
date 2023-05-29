@@ -60,9 +60,7 @@ def main():
             # image_height, image_width, _ = image.shape
             drawPlayerNames(image, -1.5, (255, 255, 255), 2)
 
-            # pass results to ml model
-            # [0='paper', 1='rock', 2='scissors']
-            # remember final image is flipped
+            # main game logic
             current_time = time.time()
             detection_frequency = config[
                 'evaluate'].getfloat('detection_frequency')
@@ -73,14 +71,19 @@ def main():
             win_time = config[
                 'evaluate'].getfloat('win_time')
             
+            # pass results to ml model
+            # [0='paper', 1='rock', 2='scissors']
+            # remember final image is flipped
             X = resultsToModelInput(image, results)
             predictions = []
             if X:
+                # predict results
                 predictions = svm.predict(X)
             
                 if current_time - start_time > detection_frequency and len(X) == 2:
                     start_time = current_time
                     
+                    # detect hand movement
                     amount = detection_time/detection_frequency
                     points_h1.append(avgCoordinates(X, 0)) 
                     if len(points_h1) > amount:
@@ -95,6 +98,7 @@ def main():
                             and maxDistance(points_h2) < movement_accuracy):
                         stationary = True
                 
+                # win state
                 if stationary and not predicted:        
                     stationary = False
                     predicted = True
@@ -102,6 +106,7 @@ def main():
                     eval_time = current_time
                     #print(predictions, result_text)
             
+            # clear after winning screen
             result_text_time = ""      
             if predicted:
                 result_text_time = result_text + f" [{win_time-round(current_time - eval_time)}s]"
