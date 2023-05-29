@@ -64,20 +64,24 @@ def main():
             # [0='paper', 1='rock', 2='scissors']
             # remember final image is flipped
             current_time = time.time()
-            frequency = 0.1
-            total_time = 1.5
-            accuracy = 0.2
-            win_time = 8
+            detection_frequency = config[
+                'evaluate'].getfloat('detection_frequency')
+            detection_time = config[
+                'evaluate'].getfloat('detection_time')
+            movement_accuracy = config[
+                'evaluate'].getfloat('movement_accuracy')
+            win_time = config[
+                'evaluate'].getfloat('win_time')
             
             X = resultsToModelInput(image, results)
             predictions = []
             if X:
                 predictions = svm.predict(X)
             
-                if current_time - start_time > frequency and len(X) == 2:
+                if current_time - start_time > detection_frequency and len(X) == 2:
                     start_time = current_time
                     
-                    amount = total_time/frequency
+                    amount = detection_time/detection_frequency
                     points_h1.append(avgCoordinates(X, 0)) 
                     if len(points_h1) > amount:
                         points_h1.pop(0)
@@ -87,8 +91,8 @@ def main():
                         
                     if (len(points_h1) >= amount 
                             and len(points_h2) >= amount 
-                            and maxDistance(points_h1) < accuracy 
-                            and maxDistance(points_h2) < accuracy):
+                            and maxDistance(points_h1) < movement_accuracy 
+                            and maxDistance(points_h2) < movement_accuracy):
                         stationary = True
                 
                 if stationary and not predicted:        
@@ -108,7 +112,7 @@ def main():
                     points_h2.clear() 
                     result_text = ''
                     
-            putTextCenter(image, result_text_time, -3, (255, 255, 255), 3)          
+            putTextCenter(image, result_text_time, -3, (255, 255, 255), 2)          
             
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):
