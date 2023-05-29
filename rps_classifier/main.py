@@ -58,7 +58,7 @@ def main():
             # cv2 image properties
             # height=y (pixel rows), width=x (pixel columns), channels=color
             # image_height, image_width, _ = image.shape
-            drawPlayerNames(image)
+            drawPlayerNames(image, -1.5, (255, 255, 255), 2)
 
             # pass results to ml model
             # [0='paper', 1='rock', 2='scissors']
@@ -112,7 +112,7 @@ def main():
                     points_h2.clear() 
                     result_text = ''
                     
-            putTextCenter(image, result_text_time, -3, (255, 255, 255), 2)          
+            drawTextCenter(image, result_text_time, -2, (255, 255, 255), 2)          
             
             # draw hand annotations
             if config['debug'].getboolean('draw_hand_annotations'):

@@ -115,14 +115,30 @@ def drawResultText(image, predictions):
         return
     
     
-def drawPlayerNames(image):
+def drawPlayerNames(image, font_scale, color, thickness):
     _, image_width, _ = image.shape
     cv2.putText(img=image, text="Player 1", org=(int(image_width/4+50), int(15)),
-                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
-                    color=(255, 255, 255), thickness=2, bottomLeftOrigin=True)
+                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=font_scale,
+                    color=color, thickness=thickness, bottomLeftOrigin=True)
     cv2.putText(img=image, text="Player 2", org=(int(image_width/4*3+50), int(15)),
-                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=-1.5,
-                    color=(255, 255, 255), thickness=2, bottomLeftOrigin=True)
+                    fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=font_scale,
+                    color=color, thickness=thickness, bottomLeftOrigin=True)
+    
+    
+def drawTextCenter(image, text, font_scale, color, thickness):
+    font=cv2.FONT_HERSHEY_PLAIN
+    text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
+    text_width, text_height = text_size
+
+    # Calculate the center position
+    image_height, image_width = image.shape[:2]
+    center_x = (image_width - text_width) // 2
+    center_y = (image_height + text_height) // 2
+
+    # Draw the text at the center position
+    cv2.putText(image, text, (center_x, center_y), 
+                font, font_scale, color, thickness, 
+                bottomLeftOrigin=True)
 
 
 # ----------------------------------coords----------------------------------
@@ -276,19 +292,3 @@ def evaluateResults(image, predictions):
     else:
         text = 'Draw!'     
     return text
-
-
-def putTextCenter(image, text, font_scale, color, thickness):
-    font=cv2.FONT_HERSHEY_PLAIN
-    text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
-    text_width, text_height = text_size
-
-    # Calculate the center position
-    image_height, image_width = image.shape[:2]
-    center_x = (image_width - text_width) // 2
-    center_y = (image_height + text_height) // 2
-
-    # Draw the text at the center position
-    cv2.putText(image, text, (center_x, center_y), 
-                font, font_scale, color, thickness, 
-                bottomLeftOrigin=True)
