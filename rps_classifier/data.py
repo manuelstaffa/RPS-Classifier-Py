@@ -6,23 +6,24 @@ import cv2
 import configparser
 from tqdm import tqdm
 import mediapipe as mp
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read("config.ini")
 
 
 def main():
-    path = config['data']['path']
+    path = config["data"]["path"]
     checkData(path)
     data = dataToNormalizedCoordinates(path)
     saveAsJson(data, path)
     # data = loadFromJson(path)
-    
-    
+
+
 # ----------------------------------shortcuts----------------------------------
 def loadTaggedData(path):
     return tagData(loadFromJson(path))
@@ -32,7 +33,7 @@ def loadTaggedData(path):
 def checkData(path):
     # checks if data exists and has right file type
     try:
-        folders = ['paper', 'rock', 'scissors']
+        folders = ["paper", "rock", "scissors"]
         for folder in folders:
             folder_path = os.path.join(path, folder)
             files = os.listdir(folder_path)
@@ -54,7 +55,7 @@ def checkDataType(file_path):
     # check if file data type is '.png', '.jpg', '.jpeg'
     split_tup = os.path.splitext(file_path)
     file_extension = split_tup[1]
-    if file_extension in ['.png', '.jpg', '.jpeg']:
+    if file_extension in [".png", ".jpg", ".jpeg"]:
         return True
     print(f"\nERROR: file with wrong type found")
     return False
@@ -65,12 +66,12 @@ def dataToNormalizedCoordinates(path):
     # converts data while removing empties
     data = []
     with mp_hands.Hands(
-            max_num_hands=1,
-            model_complexity=1,
-            min_detection_confidence=0.1,
-            min_tracking_confidence=0.1) as hands:
-
-        folders = ['paper', 'rock', 'scissors']
+        max_num_hands=1,
+        model_complexity=1,
+        min_detection_confidence=0.1,
+        min_tracking_confidence=0.1,
+    ) as hands:
+        folders = ["paper", "rock", "scissors"]
         for folder in folders:
             folder_path = os.path.join(path, folder)
             files = os.listdir(folder_path)
@@ -89,7 +90,8 @@ def dataToNormalizedCoordinates(path):
             num_files = len(files)
             num_conv = len(gesture)
             print(
-                f"\nNumber of files converted for {folder}: {num_conv} of {num_files}")
+                f"\nNumber of files converted for {folder}: {num_conv} of {num_files}"
+            )
     return data
 
 
@@ -97,24 +99,23 @@ def dataToNormalizedCoordinates(path):
 def saveAsJson(data, path):
     json_data = [[list(map(list, arr)) for arr in arr1] for arr1 in data]
 
-    path = os.path.join(path, 'output.json')
-    with open(path, 'w') as outfile:
+    path = os.path.join(path, "output.json")
+    with open(path, "w") as outfile:
         json.dump(json_data, outfile)
 
 
 def loadFromJson(path):
-    path = os.path.join(path, 'output.json')
-    with open(path, 'r') as infile:
+    path = os.path.join(path, "output.json")
+    with open(path, "r") as infile:
         json_data = json.load(infile)
 
-    data = [[[tuple(point) for point in arr] for arr in arr1]
-            for arr1 in json_data]
+    data = [[[tuple(point) for point in arr] for arr in arr1] for arr1 in json_data]
     return data
 
 
 # ----------------------------------tag data----------------------------------
 def tagData(data):
-    folders = ['paper', 'rock', 'scissors']
+    folders = ["paper", "rock", "scissors"]
     data_flat = []
     tags = []
     for i, gesture in enumerate(data):
@@ -130,5 +131,5 @@ def tagData(data):
 
 
 # ----------------------------------main----------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

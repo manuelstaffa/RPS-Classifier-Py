@@ -15,14 +15,14 @@ import numpy as np
 
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read("config.ini")
 
 
 def main():
-    path = config['data']['path']
+    path = config["data"]["path"]
     X_train, X_test, y_train, y_test, data, _ = prepareData(path)
     svm_model = trainSVM(X_train, X_test, y_train, y_test)
-    saveSVM(svm_model, path, 'svm_classifier.pkl')
+    saveSVM(svm_model, path, "svm_classifier.pkl")
     # cnn_model = trainCNN(X_train, X_test, y_train, y_test, data)
     # saveCNN(cnn_model, path, 'cnn_classifier.h5')
 
@@ -32,7 +32,8 @@ def prepareData(path):
     data, target = loadTaggedData(path)
     data, target = np.array(data), np.array(target)
     X_train, X_test, y_train, y_test = train_test_split(
-        data, target, test_size=0.25, shuffle=True)
+        data, target, test_size=0.25, shuffle=True
+    )
 
     print(np.concatenate((data, target.reshape(-1, 1)), axis=1))
     return X_train, X_test, y_train, y_test, data, target
@@ -55,16 +56,18 @@ def trainCNN(X_train, X_test, y_train, y_test, data):
     X_train_reshaped = X_train.reshape(-1, num_landmarks, 1)
     X_test_reshaped = X_test.reshape(-1, num_landmarks, 1)
 
-    cnn_classifier = keras.Sequential([
-        layers.Conv1D(32, 3, activation='relu',
-                      input_shape=(num_landmarks, 1)),
-        layers.MaxPooling1D(2),
-        layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(3, activation='softmax')
-    ])
-    cnn_classifier.compile(optimizer='adam',
-                           loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    cnn_classifier = keras.Sequential(
+        [
+            layers.Conv1D(32, 3, activation="relu", input_shape=(num_landmarks, 1)),
+            layers.MaxPooling1D(2),
+            layers.Flatten(),
+            layers.Dense(64, activation="relu"),
+            layers.Dense(3, activation="softmax"),
+        ]
+    )
+    cnn_classifier.compile(
+        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+    )
     cnn_classifier.fit(X_train_reshaped, y_train, epochs=100, batch_size=32)
 
     _, cnn_accuracy = cnn_classifier.evaluate(X_test_reshaped, y_test)
@@ -111,5 +114,5 @@ def loadCNN(path, filename):
 
 
 # ----------------------------------main----------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
